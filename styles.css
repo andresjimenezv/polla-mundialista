@@ -451,6 +451,13 @@ h2 {
   font-weight: 1000;
 }
 
+.copy-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .filters {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -458,6 +465,34 @@ h2 {
   margin-bottom: 18px;
   position: relative;
   z-index: 1;
+}
+
+.quick-filters {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.quick-filter {
+  border: 1px solid #d7e2ee;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #ffffff;
+  color: #23344f;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.quick-filter.active {
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 10px 20px rgba(10,79,179,0.20);
 }
 
 label {
@@ -490,6 +525,13 @@ input, select {
   box-shadow: 0 15px 30px rgba(4, 22, 46, 0.26);
 }
 
+.btn-secondary {
+  color: #06152c;
+  background: linear-gradient(135deg, #fff7d4, #ffffff);
+  border: 1px solid #f1d36d;
+  box-shadow: 0 12px 24px rgba(247,185,30,0.16);
+}
+
 .btn:hover { transform: translateY(-1px); }
 
 .table-wrap {
@@ -504,7 +546,7 @@ input, select {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 660px;
 }
 
 th, td {
@@ -543,17 +585,11 @@ td.name {
 .badge.nuevo { color: #075985; background: #dbeafe; }
 .badge.igual { color: #675a00; background: #fff2bf; }
 .badge--points { color: #06152c; background: #eef4fb; }
+.badge--previous { color: #334155; background: #f8fafc; }
 
 .cards { display: none; }
 
 .rank-card__body { min-width: 0; }
-
-.rank-card__user {
-  margin-top: 7px;
-  color: #7a8aa3;
-  font-size: 0.78rem;
-  font-weight: 850;
-}
 
 .rank-card--prize { border-color: rgba(247,185,30,0.58); }
 
@@ -756,16 +792,38 @@ td.name {
     margin-top: 7px;
   }
 
-  .btn-whatsapp {
+  .copy-actions {
     width: 100%;
-    min-height: 50px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  .btn-whatsapp,
+  .btn-secondary {
+    width: 100%;
+    min-height: 48px;
     border-radius: 18px;
-    font-size: 1rem;
+    font-size: 0.92rem;
+    padding: 10px 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 14px 28px rgba(4, 22, 46, 0.20);
+  }
+
+  .quick-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    margin-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quick-filter {
+    flex: 0 0 auto;
+    padding: 8px 11px;
+    font-size: 0.78rem;
   }
 
   .filters--compact {
@@ -804,16 +862,23 @@ td.name {
   }
 
   .rank-card {
+    position: relative;
     display: grid;
     grid-template-columns: 58px 1fr;
     gap: 12px;
     align-items: center;
     padding: 12px;
     border: 1px solid #dfe8f2;
+    border-left-width: 5px;
     border-radius: 20px;
     background: radial-gradient(circle at 94% 0%, rgba(10,79,179,0.055), transparent 8rem), #ffffff;
     box-shadow: 0 10px 22px rgba(6,21,44,0.07);
   }
+
+  .rank-card.status-subio { border-left-color: #22c55e; }
+  .rank-card.status-bajo { border-left-color: #ef4444; }
+  .rank-card.status-nuevo { border-left-color: #0ea5e9; }
+  .rank-card.status-igual { border-left-color: #f7b91e; }
 
   .rank-card__rank {
     width: 58px;
@@ -862,17 +927,15 @@ td.name {
     font-size: 0.82rem;
   }
 
-  .rank-card__user {
-    display: none;
-  }
-
   .rank-card--prize {
     border-color: rgba(247,185,30,0.58);
+    border-left-color: #f7b91e;
     box-shadow: 0 12px 26px rgba(247,185,30,0.10), 0 10px 22px rgba(6,21,44,0.06);
   }
 
   .rank-card--leader {
     border-color: rgba(247,185,30,0.85);
+    border-left-color: #f7b91e;
     box-shadow: 0 16px 34px rgba(247,185,30,0.16), 0 10px 22px rgba(6,21,44,0.06);
   }
 
@@ -887,6 +950,10 @@ td.name {
   }
 
   .insight-grid--clean {
+    grid-template-columns: 1fr;
+  }
+
+  .copy-actions {
     grid-template-columns: 1fr;
   }
 

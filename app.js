@@ -1,6 +1,7 @@
 const DEMO_DATA = [];
 let ranking = [];
 let meta = {};
+let quickFilter = "";
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -17,12 +18,14 @@ async function init() {
   meta = normalizeMeta(metaRows, rankingRows);
 
   populatePointsFilter(ranking);
+  setupQuickFilters();
   renderAll();
 
   document.getElementById("searchInput").addEventListener("input", renderAll);
   document.getElementById("statusFilter").addEventListener("change", renderAll);
   document.getElementById("pointsFilter").addEventListener("change", renderAll);
-  document.getElementById("copyWhatsapp").addEventListener("click", copyWhatsappRanking);
+  document.getElementById("copyWhatsapp").addEventListener("click", () => copyWhatsappRanking("full"));
+  document.getElementById("copyTop10").addEventListener("click", () => copyWhatsappRanking("top10"));
 }
 
 async function loadCsv(url, fallback) {
@@ -130,6 +133,25 @@ function getMovement(actual, anterior) {
   return { tipo: "igual", texto: "➖ Igual", delta: 0 };
 }
 
+function setupQuickFilters() {
+  document.querySelectorAll(".quick-filter").forEach(button => {
+    button.addEventListener("click", () => {
+      quickFilter = button.dataset.quickFilter || "";
+      document.querySelectorAll(".quick-filter").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+
+      const statusFilter = document.getElementById("statusFilter");
+      if (["subio", "bajo", "nuevo"].includes(quickFilter)) {
+        statusFilter.value = quickFilter;
+      } else if (quickFilter === "" || quickFilter === "top5") {
+        statusFilter.value = "";
+      }
+
+      renderAll();
+    });
+  });
+}
+
 function renderAll() {
   const filtered = getFilteredRanking();
   const insights = getInsights(ranking);
@@ -232,9 +254,13 @@ function renderCards(rows) {
     const prefix = medals[row.puesto_actual] || "🔹";
     const premiumClass = row.puesto_actual <= 5 ? " rank-card--prize" : "";
     const topClass = row.puesto_actual === 1 ? " rank-card--leader" : "";
+    const statusClass = ` status-${row.movimiento.tipo}`;
+    const previousBadge = row.puesto_anterior && row.movimiento.tipo !== "igual"
+      ? `<span class="badge badge--previous">Antes: ${row.puesto_anterior}</span>`
+      : "";
 
     return `
-      <article class="rank-card${premiumClass}${topClass}">
+      <article class="rank-card${premiumClass}${topClass}${statusClass}">
         <div class="rank-card__rank">
           <span class="rank-card__medal">${prefix}</span>
           <span class="rank-card__number">${row.puesto_actual}</span>
@@ -246,9 +272,8 @@ function renderCards(rows) {
           <div class="rank-card__meta">
             <span class="badge badge--points">${row.puntos} pts</span>
             <span class="badge ${row.movimiento.tipo}">${row.movimiento.texto}</span>
+            ${previousBadge}
           </div>
-
-          <div class="rank-card__user">@${escapeHtml(row.usuario || "sin_usuario")}</div>
         </div>
       </article>
     `;
@@ -268,12 +293,11 @@ function renderTable(rows) {
         <td class="name">${escapeHtml(row.nombre)}</td>
         <td><strong>${row.puntos}</strong></td>
         <td>${row.puesto_anterior || "—"}</td>
-        <td>${escapeHtml(row.usuario)}</td>
       </tr>
     `;
   }).join("");
 
-  document.getElementById("rankingTable").innerHTML = html || `<tr><td colspan="6">${emptyState()}</td></tr>`;
+  document.getElementById("rankingTable").innerHTML = html || `<tr><td colspan="5">${emptyState()}</td></tr>`;
 }
 
 function getFilteredRanking() {
@@ -282,14 +306,12 @@ function getFilteredRanking() {
   const points = document.getElementById("pointsFilter").value;
 
   return ranking.filter(row => {
-    const matchesSearch = !search ||
-      row.nombre.toLowerCase().includes(search) ||
-      row.usuario.toLowerCase().includes(search);
-
+    const matchesSearch = !search || row.nombre.toLowerCase().includes(search);
     const matchesStatus = !status || row.movimiento.tipo === status;
     const matchesPoints = !points || String(row.puntos) === points;
+    const matchesQuick = quickFilter !== "top5" || row.puesto_actual <= 5;
 
-    return matchesSearch && matchesStatus && matchesPoints;
+    return matchesSearch && matchesStatus && matchesPoints && matchesQuick;
   });
 }
 
@@ -305,8 +327,8 @@ function populatePointsFilter(rows) {
   });
 }
 
-async function copyWhatsappRanking() {
-  const rows = ranking;
+async function copyWhatsappRanking(mode = "full") {
+  const rows = mode === "top10" ? ranking.slice(0, 10) : ranking;
   if (!rows.length) {
     alert("No hay ranking cargado para copiar.");
     return;
@@ -319,24 +341,31 @@ async function copyWhatsappRanking() {
     ? `Incluye hasta: ${meta.actualizado_hasta || meta.partido_actualizado || meta.ultimo_partido}`
     : "";
 
-  const text = [
-    "🏆 RANKING ACTUALIZADO — POLLA MUNDIALISTA",
-    headerLine,
-    "",
-    `Total participantes: ${rows.length}`,
-    "",
-    "🔥 TOP 10",
-    "",
-    ...rows.slice(0, 10).map(formatRow),
-    "",
-    "📋 RANKING GENERAL",
-    "",
-    ...rows.map(formatRow)
-  ].filter(line => line !== null).join("\n");
+  const text = mode === "top10"
+    ? [
+        "🏆 TOP 10 — POLLA MUNDIALISTA",
+        headerLine,
+        "",
+        ...rows.map(formatRow)
+      ].filter(line => line !== null).join("\n")
+    : [
+        "🏆 RANKING ACTUALIZADO — POLLA MUNDIALISTA",
+        headerLine,
+        "",
+        `Total participantes: ${ranking.length}`,
+        "",
+        "🔥 TOP 10",
+        "",
+        ...ranking.slice(0, 10).map(formatRow),
+        "",
+        "📋 RANKING GENERAL",
+        "",
+        ...ranking.map(formatRow)
+      ].filter(line => line !== null).join("\n");
 
   try {
     await navigator.clipboard.writeText(text);
-    alert("Ranking copiado para WhatsApp.");
+    alert(mode === "top10" ? "Top 10 copiado para WhatsApp." : "Ranking completo copiado para WhatsApp.");
   } catch (error) {
     console.error(error);
     alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");

@@ -1,14 +1,27 @@
-# Polla Mundialista 2026 - V8 móvil + estadísticas ocultas
+# Polla Mundialista 2026 - V9 móvil + privacidad
 
 Cambios:
-- En móvil se oculta el título gigante y queda el logo como protagonista.
-- La fecha y "Hasta" quedan más pequeñas en móvil.
-- Arriba quedan visibles solo:
-  - Mayor subida
-  - Mayor caída
-- Se agrega acordeón "Ver estadísticas".
-- Top 5 sigue oculto/desplegable.
-- Cards de jugadores más compactas para celular.
+- Se elimina usuario de la tabla pública.
+- Se elimina usuario de las cards móviles.
+- El buscador ahora busca solo por nombre.
+- Cards móviles con borde por movimiento:
+  - Verde: subió
+  - Rojo: bajó
+  - Azul: nuevo
+  - Dorado: igual / zona alta
+- Se muestra "Antes: X" cuando aplica.
+- Chips rápidos:
+  - Todos
+  - Top 5
+  - Subieron
+  - Bajaron
+  - Nuevos
+- Botones separados:
+  - Copiar Top 10
+  - Copiar completo
+- Top 5 cambia a "Ver zona de premios".
+- Estadísticas siguen ocultas/desplegables.
+- No incluye config.js ni LogoPM.png.
 
 Archivos a subir:
 - index.html
@@ -16,9 +29,3 @@ Archivos a subir:
 - app.js
 - README.md
 - .nojekyll
-
-No incluye:
-- LogoPM.png
-- config.js
-
-Así no sobrescribes el logo ni tus links de WEB_DATA / META_WEB.

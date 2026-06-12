@@ -39,7 +39,7 @@
       <summary>
         <div>
           <p class="eyebrow eyebrow--dark">Datos de la fecha</p>
-          <h2>Ver estadísticas</h2>
+          <h2>📊 Resumen de movimientos</h2>
         </div>
         <span class="section-chip">Desplegar</span>
       </summary>
@@ -50,7 +50,7 @@
       <summary>
         <div>
           <p class="eyebrow eyebrow--dark">Zona de premios</p>
-          <h2>Ver Top 5 ganadores</h2>
+          <h2>🏆 Ver zona de premios</h2>
         </div>
         <span class="section-chip">Desplegar</span>
       </summary>
@@ -60,21 +60,33 @@
     <section class="panel ranking-panel ranking-panel--mobile-first">
       <div class="section-head">
         <div>
-          <p class="eyebrow eyebrow--dark">Tabla general</p>
-          <h2>Ranking completo</h2>
+          <p class="eyebrow eyebrow--dark">Ranking general</p>
+          <h2>Clasificación actual</h2>
           <p id="rankingSubtitle" class="ranking-subtitle">Cargando participantes...</p>
         </div>
-        <button id="copyWhatsapp" class="btn btn-whatsapp">📲 Copiar WhatsApp</button>
+
+        <div class="copy-actions">
+          <button id="copyTop10" class="btn btn-secondary">🔥 Copiar Top 10</button>
+          <button id="copyWhatsapp" class="btn btn-whatsapp">📲 Copiar completo</button>
+        </div>
+      </div>
+
+      <div class="quick-filters" aria-label="Filtros rápidos">
+        <button class="quick-filter active" data-quick-filter="">Todos</button>
+        <button class="quick-filter" data-quick-filter="top5">Top 5</button>
+        <button class="quick-filter" data-quick-filter="subio">Subieron</button>
+        <button class="quick-filter" data-quick-filter="bajo">Bajaron</button>
+        <button class="quick-filter" data-quick-filter="nuevo">Nuevos</button>
       </div>
 
       <div class="filters filters--compact">
         <label>
-          Buscar participante
-          <input id="searchInput" type="search" placeholder="Nombre o usuario..." />
+          Buscar por nombre
+          <input id="searchInput" type="search" placeholder="Nombre del participante..." />
         </label>
 
         <label>
-          Movimiento
+          Estado
           <select id="statusFilter">
             <option value="">Todos</option>
             <option value="subio">📈 Subió</option>
@@ -85,7 +97,7 @@
         </label>
 
         <label>
-          Puntos
+          Puntaje
           <select id="pointsFilter">
             <option value="">Todos</option>
           </select>
@@ -103,7 +115,6 @@
               <th>Nombre</th>
               <th>Pts</th>
               <th>Anterior</th>
-              <th>Usuario</th>
             </tr>
           </thead>
           <tbody id="rankingTable"></tbody>
