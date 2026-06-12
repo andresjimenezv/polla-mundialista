@@ -1,10 +1,10 @@
 // CONFIGURACION DE LA WEB
-// 1) Publica la pestaña WEB_DATA de Google Sheets como CSV.
-// 2) Pega aqui la URL CSV publicada.
-// 3) Guarda y sube de nuevo este archivo a GitHub.
+// Publica la pestana WEB_DATA como CSV y pega aqui el enlace.
+// Ejemplo:
+// sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/XXXXX/pub?gid=123456&single=true&output=csv",
 
 window.POLLA_CONFIG = {
-  title: "Polla Mundialista",
+  title: "PM 2026",
   sheetCsvUrl: "PEGAR_AQUI_LA_URL_CSV_DE_WEB_DATA",
   fallbackToDemoData: true
 };

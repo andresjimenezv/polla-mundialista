@@ -3,15 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Polla Mundialista</title>
-  <meta name="description" content="Ranking actualizado de la Polla Mundialista" />
+  <title>Polla Mundialista PM 2026</title>
+  <meta name="description" content="Ranking actualizado de la Polla Mundialista PM 2026" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="hero">
+    <div class="hero__glow"></div>
     <div class="hero__content">
+      <img class="brand-logo" src="LogoPM.png" alt="PM 2026 Polla Mundialista" />
       <p class="eyebrow">🏆 Ranking oficial</p>
-      <h1 id="siteTitle">Polla Mundialista</h1>
+      <h1 id="siteTitle">PM 2026</h1>
+      <p class="subtitle">Polla Mundialista</p>
       <p id="lastUpdate" class="muted">Cargando actualización...</p>
 
       <div class="hero__stats">
@@ -19,7 +22,7 @@
           <span id="totalParticipants">0</span>
           <small>Participantes</small>
         </div>
-        <div class="stat">
+        <div class="stat stat--gold">
           <span id="leaderPoints">0</span>
           <small>Puntos líder</small>
         </div>
@@ -35,7 +38,7 @@
     <section class="panel prize-panel">
       <div class="section-title">
         <div>
-          <p class="eyebrow">Premios</p>
+          <p class="eyebrow eyebrow--dark">Premios</p>
           <h2>Top 5</h2>
         </div>
       </div>
@@ -45,7 +48,7 @@
     <section class="panel controls-panel">
       <div class="section-title">
         <div>
-          <p class="eyebrow">Consulta</p>
+          <p class="eyebrow eyebrow--dark">Consulta</p>
           <h2>Ranking general</h2>
         </div>
         <button id="copyWhatsapp" class="btn">Copiar WhatsApp</button>
@@ -97,7 +100,7 @@
   </main>
 
   <footer class="footer">
-    <p>Ranking generado automáticamente desde Google Sheets.</p>
+    <p>PM 2026 · Polla Mundialista</p>
   </footer>
 
   <script src="config.js"></script>

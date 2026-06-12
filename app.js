@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   const config = window.POLLA_CONFIG || {};
-  document.getElementById("siteTitle").textContent = config.title || "Polla Mundialista";
+  document.getElementById("siteTitle").textContent = config.title || "PM 2026";
 
   ranking = await loadRanking(config);
   ranking = normalizeRows(ranking);
