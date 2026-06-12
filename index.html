@@ -22,36 +22,34 @@
             <p class="eyebrow">🏆 Ranking oficial</p>
             <h1 id="siteTitle">Polla Mundialista 2026</h1>
             <p id="lastUpdate" class="update-pill">Actualizando datos...</p>
-            <p id="connectionStatus" class="connection-status">Conectando con Google Sheets...</p>
           </div>
         </div>
 
-        <div class="hero__stats">
-          <div class="stat">
-            <span id="totalParticipants">0</span>
-            <small>Participantes</small>
-          </div>
-          <div class="stat stat--featured">
-            <span id="leaderPoints">0</span>
-            <small>Puntos líder</small>
-          </div>
-          <div class="stat">
-            <span id="moversCount">0</span>
-            <small>Con movimiento</small>
-          </div>
-        </div>
+        <div id="insightGrid" class="insight-grid"></div>
       </section>
     </div>
   </header>
 
   <main class="container">
+    <section class="panel story-panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow eyebrow--dark">Resumen competitivo</p>
+          <h2>Así va la pelea</h2>
+        </div>
+        <span id="participantsChip" class="section-chip">Cargando...</span>
+      </div>
+
+      <div id="storyStrip" class="story-strip"></div>
+    </section>
+
     <section class="panel podium">
       <div class="section-head">
         <div>
           <p class="eyebrow eyebrow--dark">Zona de premios</p>
           <h2>Top 5 ganadores</h2>
         </div>
-        <span class="section-chip">Datos desde Google Sheets</span>
+        <span class="section-chip">Premios activos</span>
       </div>
       <div id="topFive" class="top-grid"></div>
     </section>
@@ -62,7 +60,7 @@
           <p class="eyebrow eyebrow--dark">Tabla general</p>
           <h2>Ranking completo</h2>
         </div>
-        <button id="copyWhatsapp" class="btn">Copiar WhatsApp</button>
+        <button id="copyWhatsapp" class="btn">📲 Copiar WhatsApp</button>
       </div>
 
       <div class="filters">

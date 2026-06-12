@@ -37,8 +37,8 @@ body {
   background:
     radial-gradient(circle at 8% 8%, rgba(57, 168, 255, 0.92), transparent 10rem),
     radial-gradient(circle at 92% 9%, rgba(57, 168, 255, 0.72), transparent 11rem),
-    radial-gradient(circle at 50% 0%, rgba(247, 185, 30, 0.38), transparent 17rem),
-    radial-gradient(circle at 50% 45%, rgba(32, 225, 70, 0.22), transparent 30rem),
+    radial-gradient(circle at 50% 0%, rgba(247, 185, 30, 0.42), transparent 18rem),
+    radial-gradient(circle at 50% 45%, rgba(32, 225, 70, 0.24), transparent 31rem),
     linear-gradient(145deg, #020817 0%, #06254c 45%, #042f1b 100%);
 }
 
@@ -68,7 +68,7 @@ body {
 
 .hero {
   position: relative;
-  padding: 28px 18px 86px;
+  padding: 28px 18px 82px;
   color: white;
 }
 
@@ -96,14 +96,14 @@ body {
 }
 
 .hero-card {
-  max-width: 980px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 22px;
+  padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 34px;
+  border-radius: 36px;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035)),
-    radial-gradient(circle at 78% 4%, rgba(247,185,30,0.17), transparent 18rem);
+    linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.035)),
+    radial-gradient(circle at 78% 4%, rgba(247,185,30,0.18), transparent 18rem);
   box-shadow:
     0 28px 90px rgba(0, 0, 0, 0.25),
     inset 0 1px 0 rgba(255,255,255,0.16);
@@ -112,14 +112,14 @@ body {
 
 .brand {
   display: grid;
-  grid-template-columns: 142px 1fr;
+  grid-template-columns: 134px 1fr;
   align-items: center;
-  gap: 26px;
+  gap: 24px;
 }
 
 .brand__logo-wrap {
-  width: 142px;
-  height: 142px;
+  width: 134px;
+  height: 134px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -134,8 +134,8 @@ body {
 }
 
 .brand__logo {
-  width: 121px;
-  height: 121px;
+  width: 114px;
+  height: 114px;
   object-fit: cover;
   border-radius: 50%;
   display: block;
@@ -158,10 +158,10 @@ body {
 h1, h2, p { margin-top: 0; }
 
 h1 {
-  max-width: 780px;
-  margin-bottom: 14px;
-  font-size: clamp(2.55rem, 7vw, 5.8rem);
-  line-height: 0.92;
+  max-width: 830px;
+  margin: 0 0 14px;
+  font-size: clamp(2.5rem, 6.4vw, 5.35rem);
+  line-height: 0.95;
   letter-spacing: -0.078em;
   font-weight: 1000;
   color: #fff;
@@ -183,68 +183,74 @@ h1 {
   font-weight: 900;
 }
 
-.connection-status {
-  margin: 10px 0 0;
-  color: rgba(255,255,255,0.70);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.connection-status.ok { color: #b6ffbc; }
-.connection-status.warn { color: #ffe8a3; }
-.connection-status.error { color: #ffb7b7; }
-
-.hero__stats {
+.insight-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-  margin: 24px auto 0;
+  margin-top: 24px;
 }
 
-.stat {
+.insight-card {
   position: relative;
+  min-height: 142px;
   overflow: hidden;
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.065));
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 18px;
   border-radius: 24px;
-  padding: 20px 14px;
-  text-align: center;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.24);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.17);
 }
 
-.stat::after {
+.insight-card::after {
   content: "";
   position: absolute;
-  inset: auto -20% -80% -20%;
-  height: 90px;
-  background: radial-gradient(ellipse at center, rgba(32,225,70,0.24), transparent 65%);
+  inset: auto -20% -78% -20%;
+  height: 95px;
+  background: radial-gradient(ellipse at center, rgba(32,225,70,0.26), transparent 65%);
 }
 
-.stat--featured {
-  border-color: rgba(247,185,30,0.58);
-  box-shadow:
-    0 0 35px rgba(247,185,30,0.14),
-    inset 0 1px 0 rgba(255,255,255,0.22);
+.insight-card.featured {
+  border-color: rgba(247,185,30,0.62);
+  background:
+    radial-gradient(circle at top right, rgba(247,185,30,0.24), transparent 10rem),
+    linear-gradient(160deg, rgba(255,255,255,0.18), rgba(255,255,255,0.07));
 }
 
-.stat span {
-  display: block;
-  font-size: clamp(2rem, 6vw, 3.25rem);
-  line-height: 1;
+.insight-label {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 9px;
+  color: rgba(255,255,255,0.76);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   font-weight: 1000;
 }
 
-.stat small {
-  display: block;
-  margin-top: 7px;
-  color: rgba(255,255,255,0.80);
-  font-weight: 900;
+.insight-main {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.05rem, 2vw, 1.48rem);
+  line-height: 1.08;
+  font-weight: 1000;
+}
+
+.insight-sub {
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 0;
+  color: rgba(255,255,255,0.76);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  font-weight: 850;
 }
 
 .container {
   width: min(1120px, calc(100% - 28px));
-  margin: -46px auto 50px;
+  margin: -42px auto 50px;
 }
 
 .panel {
@@ -307,6 +313,39 @@ h2 {
   font-weight: 1000;
   font-size: 0.8rem;
   border: 1px solid #f4d46c;
+}
+
+.story-strip {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.story-item {
+  padding: 15px;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, #ffffff, #f8fbff);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 26px rgba(6,21,44,0.06);
+}
+
+.story-item strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.06rem;
+  line-height: 1.14;
+  font-weight: 1000;
+}
+
+.story-item span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 850;
 }
 
 .top-grid {
@@ -481,7 +520,12 @@ td.name {
   font-weight: 900;
 }
 
-@media (max-width: 920px) {
+@media (max-width: 980px) {
+  .insight-grid { grid-template-columns: 1fr 1fr; }
+  .story-strip { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 760px) {
   .hero-card { padding: 18px; }
   .brand {
     grid-template-columns: 1fr;
@@ -492,23 +536,23 @@ td.name {
   .brand__text { text-align: center; }
 
   .brand__logo-wrap {
-    width: 116px;
-    height: 116px;
+    width: 112px;
+    height: 112px;
     margin: 0 auto;
   }
 
   .brand__logo {
-    width: 99px;
-    height: 99px;
+    width: 96px;
+    height: 96px;
   }
 
   h1 {
-    font-size: clamp(2.45rem, 13vw, 4.25rem);
+    font-size: clamp(2.25rem, 12vw, 3.8rem);
   }
 
-  .hero__stats {
+  .insight-grid,
+  .story-strip {
     grid-template-columns: 1fr;
-    max-width: 360px;
   }
 
   .top-grid { grid-template-columns: 1fr; }

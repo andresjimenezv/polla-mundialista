@@ -1,11 +1,15 @@
-# Polla Mundialista 2026
+# Polla Mundialista 2026 - V4 métricas de valor
 
-Versión v3:
-- Título: Polla Mundialista 2026.
+Incluye:
+- Líder actual.
+- Mayor subida.
+- Pelea por premios.
+- Liderato compartido.
+- Entraron al Top 5.
+- Mayor caída.
+- Corte Top 5.
+- Subieron / bajaron / defendieron premio.
 - Diseño de mayor impacto.
-- Logo compacto.
-- Parser CSV más tolerante.
-- Diagnóstico visual si WEB_DATA está vacío o mal publicado.
 
 Archivos a subir a GitHub:
 - index.html

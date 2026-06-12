@@ -1,12 +1,4 @@
-const DEMO_DATA = [
-  { puesto_actual: 1, usuario: "jaimeco", nombre: "Jaime A Corva Perez", puntos: 10, puesto_anterior: 1 },
-  { puesto_actual: 2, usuario: "nachocas13", nombre: "Misael Ignacio Castillo", puntos: 10, puesto_anterior: 8 },
-  { puesto_actual: 3, usuario: "aroldan", nombre: "Alvaro Roldan", puntos: 10, puesto_anterior: 2 },
-  { puesto_actual: 4, usuario: "carlosg0205", nombre: "Carlos Garcia", puntos: 10, puesto_anterior: "" },
-  { puesto_actual: 5, usuario: "edwinnin2026", nombre: "Edwin Fabian Niño Leon", puntos: 10, puesto_anterior: 3 },
-  { puesto_actual: 6, usuario: "marcebulla", nombre: "Marcela Bulla", puntos: 10, puesto_anterior: 6 }
-];
-
+const DEMO_DATA = [];
 let ranking = [];
 let loadInfo = { status: "loading", message: "Cargando datos..." };
 
@@ -18,12 +10,6 @@ async function init() {
 
   ranking = await loadRanking(config);
   ranking = normalizeRows(ranking);
-
-  if (ranking.length > 0) {
-    loadInfo = { status: "ok", message: `Conectado: ${ranking.length} participantes cargados desde WEB_DATA.` };
-  } else if (loadInfo.status !== "error") {
-    loadInfo = { status: "warn", message: "CSV conectado, pero no encontré filas válidas. Revisa que WEB_DATA tenga encabezados y datos." };
-  }
 
   populatePointsFilter(ranking);
   renderAll();
@@ -38,20 +24,15 @@ async function loadRanking(config) {
   const url = config.sheetCsvUrl || "";
   const hasUrl = url && !url.includes("PEGAR_AQUI");
 
-  if (!hasUrl) {
-    loadInfo = { status: "warn", message: "Falta pegar el enlace CSV de WEB_DATA en config.js." };
-    return config.fallbackToDemoData ? DEMO_DATA : [];
-  }
+  if (!hasUrl) return config.fallbackToDemoData ? DEMO_DATA : [];
 
   try {
     const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const csv = await response.text();
-    const rows = parseCsv(csv);
-    return rows;
+    return parseCsv(csv);
   } catch (error) {
     console.error(error);
-    loadInfo = { status: "error", message: "No pude leer el CSV publicado. Revisa permisos, publicación y enlace CSV." };
     return config.fallbackToDemoData ? DEMO_DATA : [];
   }
 }
@@ -81,12 +62,40 @@ function normalizeRows(rows) {
     .sort((a, b) => a.puesto_actual - b.puesto_actual);
 }
 
-function pick(row, names) {
-  for (const name of names) {
-    const key = normalizeHeader(name);
-    if (Object.prototype.hasOwnProperty.call(row, key) && row[key] !== "") return row[key];
-  }
-  return "";
+function getInsights(rows) {
+  const leader = rows[0] || null;
+  const cutoff = rows[4]?.puntos ?? 0;
+  const maxPoints = leader?.puntos ?? 0;
+
+  const biggestRise = rows
+    .filter(row => row.movimiento.tipo === "subio")
+    .sort((a, b) => b.movimiento.delta - a.movimiento.delta)[0] || null;
+
+  const biggestFall = rows
+    .filter(row => row.movimiento.tipo === "bajo")
+    .sort((a, b) => Math.abs(b.movimiento.delta) - Math.abs(a.movimiento.delta))[0] || null;
+
+  const enteredTop5 = rows.filter(row => row.puesto_actual <= 5 && (!row.puesto_anterior || row.puesto_anterior > 5));
+  const leftTop5 = rows.filter(row => row.puesto_anterior && row.puesto_anterior <= 5 && row.puesto_actual > 5);
+  const closeToPrize = rows.filter(row => row.puesto_actual > 5 && row.puntos >= cutoff - 3).length;
+  const tiedAtTop = rows.filter(row => row.puntos === maxPoints).length;
+  const movedCount = rows.filter(row => ["subio", "bajo", "nuevo"].includes(row.movimiento.tipo)).length;
+  const roseCount = rows.filter(row => row.movimiento.tipo === "subio").length;
+  const fellCount = rows.filter(row => row.movimiento.tipo === "bajo").length;
+
+  return {
+    leader,
+    cutoff,
+    biggestRise,
+    biggestFall,
+    enteredTop5,
+    leftTop5,
+    closeToPrize,
+    tiedAtTop,
+    movedCount,
+    roseCount,
+    fellCount
+  };
 }
 
 function getMovement(actual, anterior) {
@@ -99,30 +108,91 @@ function getMovement(actual, anterior) {
 
 function renderAll() {
   const filtered = getFilteredRanking();
-  renderHeader(ranking);
+  const insights = getInsights(ranking);
+
+  renderHeader(ranking, insights);
+  renderInsights(insights);
+  renderStoryStrip(insights, ranking);
   renderTopFive(ranking.slice(0, 5));
   renderCards(filtered);
   renderTable(filtered);
 }
 
-function renderHeader(rows) {
-  const leader = rows[0] || {};
-  const movers = rows.filter(row => ["subio", "bajo", "nuevo"].includes(row.movimiento.tipo)).length;
+function renderHeader(rows, insights) {
+  document.getElementById("lastUpdate").textContent =
+    `Actualizado: ${formatDate(new Date())} · ${rows.length} participantes`;
 
-  document.getElementById("totalParticipants").textContent = rows.length;
-  document.getElementById("leaderPoints").textContent = leader.puntos ?? 0;
-  document.getElementById("moversCount").textContent = movers;
-  document.getElementById("lastUpdate").textContent = `Actualizado: ${formatDate(new Date())}`;
+  document.getElementById("participantsChip").textContent =
+    `${rows.length} participantes · Corte Top 5: ${insights.cutoff || 0} pts`;
+}
 
-  const status = document.getElementById("connectionStatus");
-  status.textContent = loadInfo.message;
-  status.className = `connection-status ${loadInfo.status}`;
+function renderInsights(insights) {
+  const leaderText = insights.leader
+    ? { main: insights.leader.nombre, sub: `${insights.leader.puntos} pts · Puesto 1` }
+    : { main: "Sin datos", sub: "Actualiza WEB_DATA" };
+
+  const riseText = insights.biggestRise
+    ? { main: insights.biggestRise.nombre, sub: `Subió ${insights.biggestRise.movimiento.delta} puestos` }
+    : { main: "Sin subida aún", sub: "Aparecerá desde la próxima actualización" };
+
+  const prizeFight = {
+    main: `${insights.closeToPrize} persiguiendo premio`,
+    sub: `A 3 pts o menos del corte Top 5`
+  };
+
+  const topTie = {
+    main: `${insights.tiedAtTop} en la punta`,
+    sub: `Jugadores con el puntaje máximo`
+  };
+
+  const entered = insights.enteredTop5.length
+    ? { main: `${insights.enteredTop5.length} entraron al Top 5`, sub: namesList(insights.enteredTop5) }
+    : { main: "Top 5 estable", sub: "Nadie nuevo entró a zona de premio" };
+
+  const fallText = insights.biggestFall
+    ? { main: insights.biggestFall.nombre, sub: `Bajó ${Math.abs(insights.biggestFall.movimiento.delta)} puestos` }
+    : { main: "Sin caída fuerte", sub: "No hay bajadas destacadas" };
+
+  const cards = [
+    ["👑 Líder actual", leaderText.main, leaderText.sub, "featured"],
+    ["🚀 Mayor subida", riseText.main, riseText.sub, ""],
+    ["⚔️ Pelea por premios", prizeFight.main, prizeFight.sub, "featured"],
+    ["🧨 Liderato", topTie.main, topTie.sub, ""],
+    ["🔥 Zona de premio", entered.main, entered.sub, ""],
+    ["📉 Mayor caída", fallText.main, fallText.sub, ""]
+  ];
+
+  document.getElementById("insightGrid").innerHTML = cards.map(([label, main, sub, extra]) => `
+    <article class="insight-card ${extra}">
+      <p class="insight-label">${label}</p>
+      <p class="insight-main">${escapeHtml(main)}</p>
+      <p class="insight-sub">${escapeHtml(sub)}</p>
+    </article>
+  `).join("");
+}
+
+function renderStoryStrip(insights, rows) {
+  const defended = rows.filter(row => row.puesto_actual <= 5 && row.puesto_anterior && row.puesto_anterior <= 5).length;
+  const items = [
+    [`🎯 Corte Top 5`, `${insights.cutoff || 0} pts`, `Puntaje mínimo actual para zona de premio`],
+    [`📈 Subieron`, `${insights.roseCount}`, `Participantes mejoraron posición`],
+    [`📉 Bajaron`, `${insights.fellCount}`, `Participantes perdieron posiciones`],
+    [`🛡️ Defendieron premio`, `${defended} de 5`, `Siguen dentro del Top 5`]
+  ];
+
+  document.getElementById("storyStrip").innerHTML = items.map(([label, main, sub]) => `
+    <article class="story-item">
+      <span>${label}</span>
+      <strong>${main}</strong>
+      <span>${sub}</span>
+    </article>
+  `).join("");
 }
 
 function renderTopFive(rows) {
   const container = document.getElementById("topFive");
   if (!rows.length) {
-    container.innerHTML = `<div class="empty">No hay datos para mostrar. Revisa que la pestaña WEB_DATA esté publicada como CSV y tenga participantes.</div>`;
+    container.innerHTML = `<div class="empty">No hay datos para mostrar. Revisa WEB_DATA.</div>`;
     return;
   }
 
@@ -236,6 +306,18 @@ async function copyWhatsappRanking() {
     console.error(error);
     alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");
   }
+}
+
+function namesList(rows) {
+  return rows.slice(0, 2).map(row => row.nombre).join(", ") + (rows.length > 2 ? "..." : "");
+}
+
+function pick(row, names) {
+  for (const name of names) {
+    const key = normalizeHeader(name);
+    if (Object.prototype.hasOwnProperty.call(row, key) && row[key] !== "") return row[key];
+  }
+  return "";
 }
 
 function parseCsv(csv) {
