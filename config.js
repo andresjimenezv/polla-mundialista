@@ -4,6 +4,6 @@
 
 window.POLLA_CONFIG = {
   title: "PM 2026",
-  sheetCsvUrl: "PEGAR_AQUI_LA_URL_CSV_DE_WEB_DATA",
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGzmz1X7kRUewQ-BIC2tQsWiNgq7wErnMP9qbCvBNe6VisoSwLe-vVFsyZ0tU2K7O9x4XK82IHmbFZ/pub?gid=930477836&single=true&output=csv",
   fallbackToDemoData: true
 };
