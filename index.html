@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Polla Mundialista</title>
+  <meta name="description" content="Ranking actualizado de la Polla Mundialista" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <p class="eyebrow">🏆 Ranking oficial</p>
+      <h1 id="siteTitle">Polla Mundialista</h1>
+      <p id="lastUpdate" class="muted">Cargando actualización...</p>
+
+      <div class="hero__stats">
+        <div class="stat">
+          <span id="totalParticipants">0</span>
+          <small>Participantes</small>
+        </div>
+        <div class="stat">
+          <span id="leaderPoints">0</span>
+          <small>Puntos líder</small>
+        </div>
+        <div class="stat">
+          <span id="moversCount">0</span>
+          <small>Con movimiento</small>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel prize-panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Premios</p>
+          <h2>Top 5</h2>
+        </div>
+      </div>
+      <div id="topFive" class="top-grid"></div>
+    </section>
+
+    <section class="panel controls-panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Consulta</p>
+          <h2>Ranking general</h2>
+        </div>
+        <button id="copyWhatsapp" class="btn">Copiar WhatsApp</button>
+      </div>
+
+      <div class="filters">
+        <label>
+          Buscar
+          <input id="searchInput" type="search" placeholder="Nombre o usuario..." />
+        </label>
+
+        <label>
+          Estado
+          <select id="statusFilter">
+            <option value="">Todos</option>
+            <option value="subio">📈 Subió</option>
+            <option value="bajo">📉 Bajó</option>
+            <option value="igual">➖ Igual</option>
+            <option value="nuevo">🆕 Nuevo</option>
+          </select>
+        </label>
+
+        <label>
+          Puntos
+          <select id="pointsFilter">
+            <option value="">Todos</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="rankingCards" class="cards"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Movimiento</th>
+              <th>Nombre</th>
+              <th>Pts</th>
+              <th>Anterior</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Ranking generado automáticamente desde Google Sheets.</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
