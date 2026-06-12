@@ -90,6 +90,8 @@ function normalizeRows(rows) {
 
 function getInsights(rows) {
   const cutoff = rows[4]?.puntos ?? 0;
+  const maxPoints = rows[0]?.puntos ?? 0;
+
   const biggestRise = rows
     .filter(row => row.movimiento.tipo === "subio")
     .sort((a, b) => b.movimiento.delta - a.movimiento.delta)[0] || null;
@@ -98,7 +100,26 @@ function getInsights(rows) {
     .filter(row => row.movimiento.tipo === "bajo")
     .sort((a, b) => Math.abs(b.movimiento.delta) - Math.abs(a.movimiento.delta))[0] || null;
 
-  return { cutoff, biggestRise, biggestFall };
+  const enteredTop5 = rows.filter(row => row.puesto_actual <= 5 && (!row.puesto_anterior || row.puesto_anterior > 5));
+  const leftTop5 = rows.filter(row => row.puesto_anterior && row.puesto_anterior <= 5 && row.puesto_actual > 5);
+  const closeToPrize = rows.filter(row => row.puesto_actual > 5 && row.puntos >= cutoff - 3).length;
+  const tiedAtCutoff = rows.filter(row => row.puntos === cutoff).length;
+  const roseCount = rows.filter(row => row.movimiento.tipo === "subio").length;
+  const fellCount = rows.filter(row => row.movimiento.tipo === "bajo").length;
+  const tiedAtTop = rows.filter(row => row.puntos === maxPoints).length;
+
+  return {
+    cutoff,
+    biggestRise,
+    biggestFall,
+    enteredTop5,
+    leftTop5,
+    closeToPrize,
+    tiedAtCutoff,
+    roseCount,
+    fellCount,
+    tiedAtTop
+  };
 }
 
 function getMovement(actual, anterior) {
@@ -115,6 +136,7 @@ function renderAll() {
 
   renderHeader(ranking, insights);
   renderInsights(insights);
+  renderStats(insights);
   renderTopFive(ranking.slice(0, 5));
   renderCards(filtered);
   renderTable(filtered);
@@ -125,11 +147,11 @@ function renderHeader(rows, insights) {
   const updatedUntil = meta.actualizado_hasta || meta.partido_actualizado || meta.ultimo_partido || "";
 
   document.getElementById("lastUpdate").textContent = updatedAt
-    ? `Ranking actualizado: ${updatedAt} · ${rows.length} participantes`
+    ? `Actualizado: ${updatedAt} · ${rows.length} participantes`
     : `Ranking cargado · ${rows.length} participantes`;
 
   document.getElementById("updatedUntil").textContent = updatedUntil
-    ? `Incluye hasta: ${updatedUntil}`
+    ? `Hasta: ${updatedUntil}`
     : `Pendiente configurar partido actualizado`;
 
   document.getElementById("rankingSubtitle").textContent =
@@ -155,6 +177,32 @@ function renderInsights(insights) {
       <p class="insight-label">${label}</p>
       <p class="insight-main">${escapeHtml(main)}</p>
       <p class="insight-sub">${escapeHtml(sub)}</p>
+    </article>
+  `).join("");
+}
+
+function renderStats(insights) {
+  const entered = insights.enteredTop5.length
+    ? namesList(insights.enteredTop5)
+    : "Sin cambios";
+  const left = insights.leftTop5.length
+    ? namesList(insights.leftTop5)
+    : "Sin salidas";
+
+  const items = [
+    ["⚔️ Pelea por premios", `${insights.closeToPrize}`, "Jugadores a 3 pts o menos del Top 5"],
+    ["🔥 Entraron al Top 5", `${insights.enteredTop5.length}`, entered],
+    ["💣 Salieron del Top 5", `${insights.leftTop5.length}`, left],
+    ["🧨 Empate en el corte", `${insights.tiedAtCutoff}`, `Jugadores con ${insights.cutoff || 0} pts`],
+    ["📈 Subieron", `${insights.roseCount}`, "Participantes que mejoraron posición"],
+    ["📉 Bajaron", `${insights.fellCount}`, "Participantes que perdieron posiciones"]
+  ];
+
+  document.getElementById("statsGrid").innerHTML = items.map(([label, value, sub]) => `
+    <article class="stat-mini">
+      <span class="stat-mini__label">${escapeHtml(label)}</span>
+      <strong class="stat-mini__value">${escapeHtml(value)}</strong>
+      <span class="stat-mini__sub">${escapeHtml(sub)}</span>
     </article>
   `).join("");
 }
@@ -293,6 +341,10 @@ async function copyWhatsappRanking() {
     console.error(error);
     alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");
   }
+}
+
+function namesList(rows) {
+  return rows.slice(0, 2).map(row => row.nombre).join(", ") + (rows.length > 2 ? "..." : "");
 }
 
 function pick(row, names) {

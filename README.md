@@ -1,20 +1,24 @@
-# Polla Mundialista 2026 - V7 móvil
+# Polla Mundialista 2026 - V8 móvil + estadísticas ocultas
 
 Cambios:
-- No incluye LogoPM.png porque ya está en GitHub y no cambia.
-- No incluye config.js para no sobrescribir tus enlaces de WEB_DATA / META_WEB.
-- Optimización fuerte para móvil.
-- Cards de jugadores más compactas y premium.
-- Botón de WhatsApp mejor integrado.
-- Filtros más compactos en celular.
-- Top 5 sigue desplegable.
+- En móvil se oculta el título gigante y queda el logo como protagonista.
+- La fecha y "Hasta" quedan más pequeñas en móvil.
+- Arriba quedan visibles solo:
+  - Mayor subida
+  - Mayor caída
+- Se agrega acordeón "Ver estadísticas".
+- Top 5 sigue oculto/desplegable.
+- Cards de jugadores más compactas para celular.
 
-Archivos a subir a GitHub:
+Archivos a subir:
 - index.html
 - styles.css
 - app.js
 - README.md
 - .nojekyll
 
-No subas config.js si ya tienes tus links funcionando.
-No subas LogoPM.png si el logo ya existe.
+No incluye:
+- LogoPM.png
+- config.js
+
+Así no sobrescribes el logo ni tus links de WEB_DATA / META_WEB.
