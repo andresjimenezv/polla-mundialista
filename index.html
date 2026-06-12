@@ -21,44 +21,37 @@
           <div class="brand__text">
             <p class="eyebrow">🏆 Ranking oficial</p>
             <h1 id="siteTitle">Polla Mundialista 2026</h1>
-            <p id="lastUpdate" class="update-pill">Actualizando datos...</p>
+
+            <div class="update-box">
+              <p id="lastUpdate" class="update-pill">Cargando fecha real...</p>
+              <p id="updatedUntil" class="updated-until">Cargando partido actualizado...</p>
+            </div>
           </div>
         </div>
 
-        <div id="insightGrid" class="insight-grid"></div>
+        <div id="insightGrid" class="insight-grid insight-grid--clean"></div>
       </section>
     </div>
   </header>
 
   <main class="container">
-    <section class="panel story-panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow eyebrow--dark">Resumen competitivo</p>
-          <h2>Así va la pelea</h2>
-        </div>
-        <span id="participantsChip" class="section-chip">Cargando...</span>
-      </div>
-
-      <div id="storyStrip" class="story-strip"></div>
-    </section>
-
-    <section class="panel podium">
-      <div class="section-head">
+    <details class="panel podium collapsed-panel">
+      <summary>
         <div>
           <p class="eyebrow eyebrow--dark">Zona de premios</p>
-          <h2>Top 5 ganadores</h2>
+          <h2>Ver Top 5 ganadores</h2>
         </div>
-        <span class="section-chip">Premios activos</span>
-      </div>
-      <div id="topFive" class="top-grid"></div>
-    </section>
+        <span class="section-chip">Desplegar</span>
+      </summary>
+      <div id="topFive" class="top-grid top-grid--collapsible"></div>
+    </details>
 
     <section class="panel ranking-panel">
       <div class="section-head">
         <div>
           <p class="eyebrow eyebrow--dark">Tabla general</p>
           <h2>Ranking completo</h2>
+          <p id="rankingSubtitle" class="ranking-subtitle">Cargando participantes...</p>
         </div>
         <button id="copyWhatsapp" class="btn">📲 Copiar WhatsApp</button>
       </div>

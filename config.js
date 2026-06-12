@@ -1,8 +1,10 @@
 // CONFIGURACION DE LA WEB
-// Este enlace debe ser el CSV publicado de la pestana WEB_DATA.
+// WEB_DATA contiene el ranking.
+// META_WEB es opcional, pero recomendado para mostrar hora real y partido actualizado.
 
 window.POLLA_CONFIG = {
   title: "Polla Mundialista 2026",
   sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGzmz1X7kRUewQ-BIC2tQsWiNgq7wErnMP9qbCvBNe6VisoSwLe-vVFsyZ0tU2K7O9x4XK82IHmbFZ/pub?gid=930477836&single=true&output=csv",
+  metaCsvUrl: "PEGAR_AQUI_LA_URL_CSV_DE_META_WEB",
   fallbackToDemoData: false
 };

@@ -1,6 +1,6 @@
 const DEMO_DATA = [];
 let ranking = [];
-let loadInfo = { status: "loading", message: "Cargando datos..." };
+let meta = {};
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -8,8 +8,13 @@ async function init() {
   const config = window.POLLA_CONFIG || {};
   document.getElementById("siteTitle").textContent = config.title || "Polla Mundialista 2026";
 
-  ranking = await loadRanking(config);
-  ranking = normalizeRows(ranking);
+  const [rankingRows, metaRows] = await Promise.all([
+    loadCsv(config.sheetCsvUrl, config.fallbackToDemoData ? DEMO_DATA : []),
+    loadCsv(config.metaCsvUrl, [])
+  ]);
+
+  ranking = normalizeRows(rankingRows);
+  meta = normalizeMeta(metaRows, rankingRows);
 
   populatePointsFilter(ranking);
   renderAll();
@@ -20,11 +25,9 @@ async function init() {
   document.getElementById("copyWhatsapp").addEventListener("click", copyWhatsappRanking);
 }
 
-async function loadRanking(config) {
-  const url = config.sheetCsvUrl || "";
-  const hasUrl = url && !url.includes("PEGAR_AQUI");
-
-  if (!hasUrl) return config.fallbackToDemoData ? DEMO_DATA : [];
+async function loadCsv(url, fallback) {
+  const hasUrl = url && !String(url).includes("PEGAR_AQUI");
+  if (!hasUrl) return fallback;
 
   try {
     const response = await fetch(url, { cache: "no-store" });
@@ -33,8 +36,31 @@ async function loadRanking(config) {
     return parseCsv(csv);
   } catch (error) {
     console.error(error);
-    return config.fallbackToDemoData ? DEMO_DATA : [];
+    return fallback;
   }
+}
+
+function normalizeMeta(metaRows, rankingRows) {
+  const out = {};
+
+  for (const row of metaRows) {
+    const key = textValue(pick(row, ["clave", "key", "campo"]));
+    const value = textValue(pick(row, ["valor", "value", "dato"]));
+    if (key && value) out[normalizeHeader(key)] = value;
+  }
+
+  const firstRankingRaw = rankingRows[0] || {};
+  const fallbackUpdatedAt = textValue(pick(firstRankingRaw, [
+    "fecha_actualizacion", "ultima_actualizacion", "actualizado", "actualizado_en", "ranking_actualizado"
+  ]));
+  const fallbackUntil = textValue(pick(firstRankingRaw, [
+    "actualizado_hasta", "partido_actualizado", "ultimo_partido", "partido", "incluye_hasta"
+  ]));
+
+  if (!out.ultima_actualizacion && fallbackUpdatedAt) out.ultima_actualizacion = fallbackUpdatedAt;
+  if (!out.actualizado_hasta && fallbackUntil) out.actualizado_hasta = fallbackUntil;
+
+  return out;
 }
 
 function normalizeRows(rows) {
@@ -63,10 +89,7 @@ function normalizeRows(rows) {
 }
 
 function getInsights(rows) {
-  const leader = rows[0] || null;
   const cutoff = rows[4]?.puntos ?? 0;
-  const maxPoints = leader?.puntos ?? 0;
-
   const biggestRise = rows
     .filter(row => row.movimiento.tipo === "subio")
     .sort((a, b) => b.movimiento.delta - a.movimiento.delta)[0] || null;
@@ -75,27 +98,7 @@ function getInsights(rows) {
     .filter(row => row.movimiento.tipo === "bajo")
     .sort((a, b) => Math.abs(b.movimiento.delta) - Math.abs(a.movimiento.delta))[0] || null;
 
-  const enteredTop5 = rows.filter(row => row.puesto_actual <= 5 && (!row.puesto_anterior || row.puesto_anterior > 5));
-  const leftTop5 = rows.filter(row => row.puesto_anterior && row.puesto_anterior <= 5 && row.puesto_actual > 5);
-  const closeToPrize = rows.filter(row => row.puesto_actual > 5 && row.puntos >= cutoff - 3).length;
-  const tiedAtTop = rows.filter(row => row.puntos === maxPoints).length;
-  const movedCount = rows.filter(row => ["subio", "bajo", "nuevo"].includes(row.movimiento.tipo)).length;
-  const roseCount = rows.filter(row => row.movimiento.tipo === "subio").length;
-  const fellCount = rows.filter(row => row.movimiento.tipo === "bajo").length;
-
-  return {
-    leader,
-    cutoff,
-    biggestRise,
-    biggestFall,
-    enteredTop5,
-    leftTop5,
-    closeToPrize,
-    tiedAtTop,
-    movedCount,
-    roseCount,
-    fellCount
-  };
+  return { cutoff, biggestRise, biggestFall };
 }
 
 function getMovement(actual, anterior) {
@@ -112,54 +115,39 @@ function renderAll() {
 
   renderHeader(ranking, insights);
   renderInsights(insights);
-  renderStoryStrip(insights, ranking);
   renderTopFive(ranking.slice(0, 5));
   renderCards(filtered);
   renderTable(filtered);
 }
 
 function renderHeader(rows, insights) {
-  document.getElementById("lastUpdate").textContent =
-    `Actualizado: ${formatDate(new Date())} · ${rows.length} participantes`;
+  const updatedAt = meta.ultima_actualizacion || meta.fecha_actualizacion || meta.actualizado || "";
+  const updatedUntil = meta.actualizado_hasta || meta.partido_actualizado || meta.ultimo_partido || "";
 
-  document.getElementById("participantsChip").textContent =
+  document.getElementById("lastUpdate").textContent = updatedAt
+    ? `Ranking actualizado: ${updatedAt} · ${rows.length} participantes`
+    : `Ranking cargado · ${rows.length} participantes`;
+
+  document.getElementById("updatedUntil").textContent = updatedUntil
+    ? `Incluye hasta: ${updatedUntil}`
+    : `Pendiente configurar partido actualizado`;
+
+  document.getElementById("rankingSubtitle").textContent =
     `${rows.length} participantes · Corte Top 5: ${insights.cutoff || 0} pts`;
 }
 
 function renderInsights(insights) {
-  const leaderText = insights.leader
-    ? { main: insights.leader.nombre, sub: `${insights.leader.puntos} pts · Puesto 1` }
-    : { main: "Sin datos", sub: "Actualiza WEB_DATA" };
-
   const riseText = insights.biggestRise
     ? { main: insights.biggestRise.nombre, sub: `Subió ${insights.biggestRise.movimiento.delta} puestos` }
-    : { main: "Sin subida aún", sub: "Aparecerá desde la próxima actualización" };
-
-  const prizeFight = {
-    main: `${insights.closeToPrize} persiguiendo premio`,
-    sub: `A 3 pts o menos del corte Top 5`
-  };
-
-  const topTie = {
-    main: `${insights.tiedAtTop} en la punta`,
-    sub: `Jugadores con el puntaje máximo`
-  };
-
-  const entered = insights.enteredTop5.length
-    ? { main: `${insights.enteredTop5.length} entraron al Top 5`, sub: namesList(insights.enteredTop5) }
-    : { main: "Top 5 estable", sub: "Nadie nuevo entró a zona de premio" };
+    : { main: "Sin subida aún", sub: "Aparecerá desde la próxima actualización real" };
 
   const fallText = insights.biggestFall
     ? { main: insights.biggestFall.nombre, sub: `Bajó ${Math.abs(insights.biggestFall.movimiento.delta)} puestos` }
     : { main: "Sin caída fuerte", sub: "No hay bajadas destacadas" };
 
   const cards = [
-    ["👑 Líder actual", leaderText.main, leaderText.sub, "featured"],
-    ["🚀 Mayor subida", riseText.main, riseText.sub, ""],
-    ["⚔️ Pelea por premios", prizeFight.main, prizeFight.sub, "featured"],
-    ["🧨 Liderato", topTie.main, topTie.sub, ""],
-    ["🔥 Zona de premio", entered.main, entered.sub, ""],
-    ["📉 Mayor caída", fallText.main, fallText.sub, ""]
+    ["🚀 Mayor subida", riseText.main, riseText.sub, "rise"],
+    ["📉 Mayor caída", fallText.main, fallText.sub, "fall"]
   ];
 
   document.getElementById("insightGrid").innerHTML = cards.map(([label, main, sub, extra]) => `
@@ -167,24 +155,6 @@ function renderInsights(insights) {
       <p class="insight-label">${label}</p>
       <p class="insight-main">${escapeHtml(main)}</p>
       <p class="insight-sub">${escapeHtml(sub)}</p>
-    </article>
-  `).join("");
-}
-
-function renderStoryStrip(insights, rows) {
-  const defended = rows.filter(row => row.puesto_actual <= 5 && row.puesto_anterior && row.puesto_anterior <= 5).length;
-  const items = [
-    [`🎯 Corte Top 5`, `${insights.cutoff || 0} pts`, `Puntaje mínimo actual para zona de premio`],
-    [`📈 Subieron`, `${insights.roseCount}`, `Participantes mejoraron posición`],
-    [`📉 Bajaron`, `${insights.fellCount}`, `Participantes perdieron posiciones`],
-    [`🛡️ Defendieron premio`, `${defended} de 5`, `Siguen dentro del Top 5`]
-  ];
-
-  document.getElementById("storyStrip").innerHTML = items.map(([label, main, sub]) => `
-    <article class="story-item">
-      <span>${label}</span>
-      <strong>${main}</strong>
-      <span>${sub}</span>
     </article>
   `).join("");
 }
@@ -285,8 +255,13 @@ async function copyWhatsappRanking() {
   const medals = {1:"🥇", 2:"🥈", 3:"🥉", 4:"🏅", 5:"🎖️"};
   const formatRow = row => `${medals[row.puesto_actual] || "🔹"} ${row.puesto_actual}. ${row.nombre} — ${row.puntos} pts`;
 
+  const headerLine = meta.actualizado_hasta || meta.partido_actualizado || meta.ultimo_partido
+    ? `Incluye hasta: ${meta.actualizado_hasta || meta.partido_actualizado || meta.ultimo_partido}`
+    : "";
+
   const text = [
     "🏆 RANKING ACTUALIZADO — POLLA MUNDIALISTA",
+    headerLine,
     "",
     `Total participantes: ${rows.length}`,
     "",
@@ -297,7 +272,7 @@ async function copyWhatsappRanking() {
     "📋 RANKING GENERAL",
     "",
     ...rows.map(formatRow)
-  ].join("\n");
+  ].filter(line => line !== null).join("\n");
 
   try {
     await navigator.clipboard.writeText(text);
@@ -306,10 +281,6 @@ async function copyWhatsappRanking() {
     console.error(error);
     alert("No se pudo copiar automáticamente. Selecciona el texto manualmente.");
   }
-}
-
-function namesList(rows) {
-  return rows.slice(0, 2).map(row => row.nombre).join(", ") + (rows.length > 2 ? "..." : "");
 }
 
 function pick(row, names) {
@@ -351,7 +322,8 @@ function findHeaderLine(lines) {
     const hasName = normalized.includes("nombre") || normalized.includes("participante") || normalized.includes("jugador");
     const hasPoints = normalized.includes("puntos") || normalized.includes("pts") || normalized.includes("puntaje");
     const hasPosition = normalized.includes("puesto") || normalized.includes("posicion") || normalized.includes("pos");
-    if ((hasName && hasPoints) || (hasPosition && hasPoints)) return i;
+    const hasKeyValue = normalized.includes("clave") && normalized.includes("valor");
+    if ((hasName && hasPoints) || (hasPosition && hasPoints) || hasKeyValue) return i;
   }
   return 0;
 }
@@ -407,13 +379,6 @@ function numberValue(value) {
 
 function textValue(value) {
   return String(value ?? "").trim();
-}
-
-function formatDate(date) {
-  return date.toLocaleString("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  });
 }
 
 function escapeHtml(value) {
