@@ -182,13 +182,25 @@ function renderCards(rows) {
   const medals = {1:"🥇", 2:"🥈", 3:"🥉", 4:"🏅", 5:"🎖️"};
   const html = rows.map(row => {
     const prefix = medals[row.puesto_actual] || "🔹";
+    const premiumClass = row.puesto_actual <= 5 ? " rank-card--prize" : "";
+    const topClass = row.puesto_actual === 1 ? " rank-card--leader" : "";
+
     return `
-      <article class="rank-card">
-        <div class="rank-card__rank">${prefix} ${row.puesto_actual}</div>
-        <div class="rank-card__name">${escapeHtml(row.nombre)}</div>
-        <div class="rank-card__meta">
-          <span class="badge">${row.puntos} pts</span>
-          <span class="badge ${row.movimiento.tipo}">${row.movimiento.texto}</span>
+      <article class="rank-card${premiumClass}${topClass}">
+        <div class="rank-card__rank">
+          <span class="rank-card__medal">${prefix}</span>
+          <span class="rank-card__number">${row.puesto_actual}</span>
+        </div>
+
+        <div class="rank-card__body">
+          <div class="rank-card__name">${escapeHtml(row.nombre)}</div>
+
+          <div class="rank-card__meta">
+            <span class="badge badge--points">${row.puntos} pts</span>
+            <span class="badge ${row.movimiento.tipo}">${row.movimiento.texto}</span>
+          </div>
+
+          <div class="rank-card__user">@${escapeHtml(row.usuario || "sin_usuario")}</div>
         </div>
       </article>
     `;
