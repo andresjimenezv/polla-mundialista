@@ -1,7 +1,8 @@
 # PM 2026 - Polla Mundialista
 
-Archivos incluidos:
+Version de impacto visual con logo compacto.
 
+Archivos:
 - index.html
 - styles.css
 - app.js
@@ -9,8 +10,8 @@ Archivos incluidos:
 - LogoPM.png
 - .nojekyll
 
-Para conectar Google Sheets:
-1. Publicar solo la pestana WEB_DATA como CSV.
-2. Copiar el enlace CSV.
-3. Pegar el enlace en config.js dentro de sheetCsvUrl.
-4. Subir/actualizar los archivos en GitHub.
+Actualizacion:
+1. Publica WEB_DATA como CSV en Google Sheets.
+2. Copia el enlace CSV.
+3. Pegalo en config.js en sheetCsvUrl.
+4. Sube estos archivos a GitHub.

@@ -190,7 +190,7 @@ async function copyWhatsappRanking() {
     "📋 RANKING GENERAL",
     "",
     ...rows.map(formatRow)
-  ].join("\n");
+  ].join("\\n");
 
   try {
     await navigator.clipboard.writeText(text);
@@ -202,7 +202,7 @@ async function copyWhatsappRanking() {
 }
 
 function parseCsv(csv) {
-  const lines = csv.trim().split(/\r?\n/);
+  const lines = csv.trim().split(/\\r?\\n/);
   if (!lines.length) return [];
 
   const headers = splitCsvLine(lines[0]).map(header => normalizeHeader(header));
@@ -246,12 +246,12 @@ function normalizeHeader(header) {
   return String(header)
     .trim()
     .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "_");
+    .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/\\s+/g, "_");
 }
 
 function numberValue(value) {
-  const number = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+  const number = Number(String(value ?? "").replace(/[^\\d.-]/g, ""));
   return Number.isFinite(number) ? number : 0;
 }
 

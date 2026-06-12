@@ -3,26 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Polla Mundialista PM 2026</title>
-  <meta name="description" content="Ranking actualizado de la Polla Mundialista PM 2026" />
+  <title>PM 2026 · Polla Mundialista</title>
+  <meta name="description" content="Ranking actualizado de PM 2026 Polla Mundialista" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="stadium-bg"></div>
+
   <header class="hero">
-    <div class="hero__glow"></div>
-    <div class="hero__content">
-      <img class="brand-logo" src="LogoPM.png" alt="PM 2026 Polla Mundialista" />
-      <p class="eyebrow">🏆 Ranking oficial</p>
-      <h1 id="siteTitle">PM 2026</h1>
-      <p class="subtitle">Polla Mundialista</p>
-      <p id="lastUpdate" class="muted">Cargando actualización...</p>
+    <div class="hero__inner">
+      <div class="brand">
+        <div class="brand__logo-wrap">
+          <img class="brand__logo" src="LogoPM.png" alt="Logo PM 2026 Polla Mundialista" />
+        </div>
+
+        <div class="brand__text">
+          <p class="eyebrow">🏆 Ranking oficial</p>
+          <h1 id="siteTitle">PM 2026</h1>
+          <p class="subtitle">Polla Mundialista</p>
+          <p id="lastUpdate" class="update-pill">Actualizando datos...</p>
+        </div>
+      </div>
 
       <div class="hero__stats">
         <div class="stat">
           <span id="totalParticipants">0</span>
           <small>Participantes</small>
         </div>
-        <div class="stat stat--gold">
+        <div class="stat stat--featured">
           <span id="leaderPoints">0</span>
           <small>Puntos líder</small>
         </div>
@@ -35,33 +43,34 @@
   </header>
 
   <main class="container">
-    <section class="panel prize-panel">
-      <div class="section-title">
+    <section class="podium panel">
+      <div class="section-head">
         <div>
-          <p class="eyebrow eyebrow--dark">Premios</p>
-          <h2>Top 5</h2>
+          <p class="eyebrow eyebrow--dark">Zona de premios</p>
+          <h2>Top 5 ganadores</h2>
         </div>
+        <span class="section-chip">Actualizado en vivo desde Sheets</span>
       </div>
       <div id="topFive" class="top-grid"></div>
     </section>
 
-    <section class="panel controls-panel">
-      <div class="section-title">
+    <section class="panel ranking-panel">
+      <div class="section-head">
         <div>
-          <p class="eyebrow eyebrow--dark">Consulta</p>
-          <h2>Ranking general</h2>
+          <p class="eyebrow eyebrow--dark">Tabla general</p>
+          <h2>Ranking completo</h2>
         </div>
         <button id="copyWhatsapp" class="btn">Copiar WhatsApp</button>
       </div>
 
       <div class="filters">
         <label>
-          Buscar
+          Buscar participante
           <input id="searchInput" type="search" placeholder="Nombre o usuario..." />
         </label>
 
         <label>
-          Estado
+          Movimiento
           <select id="statusFilter">
             <option value="">Todos</option>
             <option value="subio">📈 Subió</option>
@@ -100,7 +109,9 @@
   </main>
 
   <footer class="footer">
-    <p>PM 2026 · Polla Mundialista</p>
+    <span>PM 2026</span>
+    <span>·</span>
+    <span>Polla Mundialista</span>
   </footer>
 
   <script src="config.js"></script>
