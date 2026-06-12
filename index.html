@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PM 2026 · Polla Mundialista</title>
-  <meta name="description" content="Ranking actualizado de PM 2026 Polla Mundialista" />
+  <title>Polla Mundialista 2026</title>
+  <meta name="description" content="Ranking actualizado de la Polla Mundialista 2026" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,44 +12,46 @@
 
   <header class="hero">
     <div class="hero__inner">
-      <div class="brand">
-        <div class="brand__logo-wrap">
-          <img class="brand__logo" src="LogoPM.png" alt="Logo PM 2026 Polla Mundialista" />
+      <section class="hero-card">
+        <div class="brand">
+          <div class="brand__logo-wrap">
+            <img class="brand__logo" src="LogoPM.png" alt="Logo Polla Mundialista 2026" />
+          </div>
+
+          <div class="brand__text">
+            <p class="eyebrow">🏆 Ranking oficial</p>
+            <h1 id="siteTitle">Polla Mundialista 2026</h1>
+            <p id="lastUpdate" class="update-pill">Actualizando datos...</p>
+            <p id="connectionStatus" class="connection-status">Conectando con Google Sheets...</p>
+          </div>
         </div>
 
-        <div class="brand__text">
-          <p class="eyebrow">🏆 Ranking oficial</p>
-          <h1 id="siteTitle">PM 2026</h1>
-          <p class="subtitle">Polla Mundialista</p>
-          <p id="lastUpdate" class="update-pill">Actualizando datos...</p>
+        <div class="hero__stats">
+          <div class="stat">
+            <span id="totalParticipants">0</span>
+            <small>Participantes</small>
+          </div>
+          <div class="stat stat--featured">
+            <span id="leaderPoints">0</span>
+            <small>Puntos líder</small>
+          </div>
+          <div class="stat">
+            <span id="moversCount">0</span>
+            <small>Con movimiento</small>
+          </div>
         </div>
-      </div>
-
-      <div class="hero__stats">
-        <div class="stat">
-          <span id="totalParticipants">0</span>
-          <small>Participantes</small>
-        </div>
-        <div class="stat stat--featured">
-          <span id="leaderPoints">0</span>
-          <small>Puntos líder</small>
-        </div>
-        <div class="stat">
-          <span id="moversCount">0</span>
-          <small>Con movimiento</small>
-        </div>
-      </div>
+      </section>
     </div>
   </header>
 
   <main class="container">
-    <section class="podium panel">
+    <section class="panel podium">
       <div class="section-head">
         <div>
           <p class="eyebrow eyebrow--dark">Zona de premios</p>
           <h2>Top 5 ganadores</h2>
         </div>
-        <span class="section-chip">Actualizado en vivo desde Sheets</span>
+        <span class="section-chip">Datos desde Google Sheets</span>
       </div>
       <div id="topFive" class="top-grid"></div>
     </section>
@@ -109,9 +111,7 @@
   </main>
 
   <footer class="footer">
-    <span>PM 2026</span>
-    <span>·</span>
-    <span>Polla Mundialista</span>
+    <span>Polla Mundialista 2026</span>
   </footer>
 
   <script src="config.js"></script>

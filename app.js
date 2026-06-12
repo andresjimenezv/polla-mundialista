@@ -8,15 +8,23 @@ const DEMO_DATA = [
 ];
 
 let ranking = [];
+let loadInfo = { status: "loading", message: "Cargando datos..." };
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   const config = window.POLLA_CONFIG || {};
-  document.getElementById("siteTitle").textContent = config.title || "PM 2026";
+  document.getElementById("siteTitle").textContent = config.title || "Polla Mundialista 2026";
 
   ranking = await loadRanking(config);
   ranking = normalizeRows(ranking);
+
+  if (ranking.length > 0) {
+    loadInfo = { status: "ok", message: `Conectado: ${ranking.length} participantes cargados desde WEB_DATA.` };
+  } else if (loadInfo.status !== "error") {
+    loadInfo = { status: "warn", message: "CSV conectado, pero no encontré filas válidas. Revisa que WEB_DATA tenga encabezados y datos." };
+  }
+
   populatePointsFilter(ranking);
   renderAll();
 
@@ -31,17 +39,19 @@ async function loadRanking(config) {
   const hasUrl = url && !url.includes("PEGAR_AQUI");
 
   if (!hasUrl) {
-    if (config.fallbackToDemoData) return DEMO_DATA;
-    return [];
+    loadInfo = { status: "warn", message: "Falta pegar el enlace CSV de WEB_DATA en config.js." };
+    return config.fallbackToDemoData ? DEMO_DATA : [];
   }
 
   try {
     const response = await fetch(url, { cache: "no-store" });
-    if (!response.ok) throw new Error("No se pudo cargar el CSV");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const csv = await response.text();
-    return parseCsv(csv);
+    const rows = parseCsv(csv);
+    return rows;
   } catch (error) {
     console.error(error);
+    loadInfo = { status: "error", message: "No pude leer el CSV publicado. Revisa permisos, publicación y enlace CSV." };
     return config.fallbackToDemoData ? DEMO_DATA : [];
   }
 }
@@ -49,21 +59,34 @@ async function loadRanking(config) {
 function normalizeRows(rows) {
   return rows
     .map(row => {
-      const puestoActual = numberValue(row.puesto_actual ?? row.puesto ?? row.posicion ?? row.posición);
-      const puntos = numberValue(row.puntos);
-      const puestoAnterior = numberValue(row.puesto_anterior ?? row.anterior);
+      const puestoActual = numberValue(pick(row, [
+        "puesto_actual", "puesto", "pos", "posicion", "posición", "ranking", "rank", "posicion_actual", "posición_actual"
+      ]));
+      const puntos = numberValue(pick(row, ["puntos", "pts", "puntaje", "score"]));
+      const puestoAnteriorRaw = pick(row, [
+        "puesto_anterior", "anterior", "posicion_anterior", "posición_anterior", "ranking_anterior", "rank_anterior"
+      ]);
+      const puestoAnterior = numberValue(puestoAnteriorRaw);
 
       return {
         puesto_actual: puestoActual,
-        usuario: textValue(row.usuario),
-        nombre: textValue(row.nombre),
+        usuario: textValue(pick(row, ["usuario", "user", "username"])),
+        nombre: textValue(pick(row, ["nombre", "participante", "jugador", "nombre_participante"])),
         puntos,
         puesto_anterior: puestoAnterior || "",
         movimiento: getMovement(puestoActual, puestoAnterior)
       };
     })
-    .filter(row => row.puesto_actual && row.nombre)
+    .filter(row => row.puesto_actual > 0 && row.nombre)
     .sort((a, b) => a.puesto_actual - b.puesto_actual);
+}
+
+function pick(row, names) {
+  for (const name of names) {
+    const key = normalizeHeader(name);
+    if (Object.prototype.hasOwnProperty.call(row, key) && row[key] !== "") return row[key];
+  }
+  return "";
 }
 
 function getMovement(actual, anterior) {
@@ -90,9 +113,19 @@ function renderHeader(rows) {
   document.getElementById("leaderPoints").textContent = leader.puntos ?? 0;
   document.getElementById("moversCount").textContent = movers;
   document.getElementById("lastUpdate").textContent = `Actualizado: ${formatDate(new Date())}`;
+
+  const status = document.getElementById("connectionStatus");
+  status.textContent = loadInfo.message;
+  status.className = `connection-status ${loadInfo.status}`;
 }
 
 function renderTopFive(rows) {
+  const container = document.getElementById("topFive");
+  if (!rows.length) {
+    container.innerHTML = `<div class="empty">No hay datos para mostrar. Revisa que la pestaña WEB_DATA esté publicada como CSV y tenga participantes.</div>`;
+    return;
+  }
+
   const medals = ["🥇", "🥈", "🥉", "🏅", "🎖️"];
   const html = rows.map((row, index) => `
     <article class="prize-card">
@@ -102,7 +135,7 @@ function renderTopFive(rows) {
     </article>
   `).join("");
 
-  document.getElementById("topFive").innerHTML = html;
+  container.innerHTML = html;
 }
 
 function renderCards(rows) {
@@ -174,8 +207,12 @@ function populatePointsFilter(rows) {
 
 async function copyWhatsappRanking() {
   const rows = ranking;
-  const medals = {1:"🥇", 2:"🥈", 3:"🥉", 4:"🏅", 5:"🎖️"};
+  if (!rows.length) {
+    alert("No hay ranking cargado para copiar.");
+    return;
+  }
 
+  const medals = {1:"🥇", 2:"🥈", 3:"🥉", 4:"🏅", 5:"🎖️"};
   const formatRow = row => `${medals[row.puesto_actual] || "🔹"} ${row.puesto_actual}. ${row.nombre} — ${row.puntos} pts`;
 
   const text = [
@@ -190,7 +227,7 @@ async function copyWhatsappRanking() {
     "📋 RANKING GENERAL",
     "",
     ...rows.map(formatRow)
-  ].join("\\n");
+  ].join("\n");
 
   try {
     await navigator.clipboard.writeText(text);
@@ -202,12 +239,22 @@ async function copyWhatsappRanking() {
 }
 
 function parseCsv(csv) {
-  const lines = csv.trim().split(/\\r?\\n/);
+  const clean = String(csv || "").replace(/^\uFEFF/, "").trim();
+  if (!clean) return [];
+
+  let lines = clean.split(/\r?\n/).filter(line => line.trim() !== "");
   if (!lines.length) return [];
 
-  const headers = splitCsvLine(lines[0]).map(header => normalizeHeader(header));
-  return lines.slice(1).map(line => {
-    const values = splitCsvLine(line);
+  if (/^sep=/i.test(lines[0])) lines = lines.slice(1);
+
+  const headerIndex = findHeaderLine(lines);
+  if (headerIndex < 0) return [];
+
+  const delimiter = detectDelimiter(lines[headerIndex]);
+  const headers = splitDelimitedLine(lines[headerIndex], delimiter).map(header => normalizeHeader(header));
+
+  return lines.slice(headerIndex + 1).map(line => {
+    const values = splitDelimitedLine(line, delimiter);
     const row = {};
     headers.forEach((header, index) => {
       row[header] = values[index] ?? "";
@@ -216,7 +263,25 @@ function parseCsv(csv) {
   });
 }
 
-function splitCsvLine(line) {
+function findHeaderLine(lines) {
+  for (let i = 0; i < Math.min(lines.length, 8); i++) {
+    const normalized = normalizeHeader(lines[i]);
+    const hasName = normalized.includes("nombre") || normalized.includes("participante") || normalized.includes("jugador");
+    const hasPoints = normalized.includes("puntos") || normalized.includes("pts") || normalized.includes("puntaje");
+    const hasPosition = normalized.includes("puesto") || normalized.includes("posicion") || normalized.includes("pos");
+    if ((hasName && hasPoints) || (hasPosition && hasPoints)) return i;
+  }
+  return 0;
+}
+
+function detectDelimiter(line) {
+  const candidates = [",", ";", "\t"];
+  return candidates
+    .map(delimiter => ({ delimiter, count: splitDelimitedLine(line, delimiter).length }))
+    .sort((a, b) => b.count - a.count)[0].delimiter;
+}
+
+function splitDelimitedLine(line, delimiter) {
   const result = [];
   let current = "";
   let insideQuotes = false;
@@ -230,7 +295,7 @@ function splitCsvLine(line) {
       i++;
     } else if (char === '"') {
       insideQuotes = !insideQuotes;
-    } else if (char === "," && !insideQuotes) {
+    } else if (char === delimiter && !insideQuotes) {
       result.push(current);
       current = "";
     } else {
@@ -243,15 +308,18 @@ function splitCsvLine(line) {
 }
 
 function normalizeHeader(header) {
-  return String(header)
+  return String(header ?? "")
     .trim()
     .toLowerCase()
-    .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
-    .replace(/\\s+/g, "_");
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 function numberValue(value) {
-  const number = Number(String(value ?? "").replace(/[^\\d.-]/g, ""));
+  const raw = String(value ?? "").trim();
+  if (!raw || raw === "—" || raw === "-") return 0;
+  const number = Number(raw.replace(/[^\d.-]/g, ""));
   return Number.isFinite(number) ? number : 0;
 }
 

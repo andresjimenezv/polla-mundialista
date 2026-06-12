@@ -1,17 +1,17 @@
-# PM 2026 - Polla Mundialista
+# Polla Mundialista 2026
 
-Version de impacto visual con logo compacto.
+Versión v3:
+- Título: Polla Mundialista 2026.
+- Diseño de mayor impacto.
+- Logo compacto.
+- Parser CSV más tolerante.
+- Diagnóstico visual si WEB_DATA está vacío o mal publicado.
 
-Archivos:
+Archivos a subir a GitHub:
 - index.html
 - styles.css
 - app.js
 - config.js
 - LogoPM.png
 - .nojekyll
-
-Actualizacion:
-1. Publica WEB_DATA como CSV en Google Sheets.
-2. Copia el enlace CSV.
-3. Pegalo en config.js en sheetCsvUrl.
-4. Sube estos archivos a GitHub.
+- README.md
